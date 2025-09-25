@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import Link from "next/link";
 
 
 export const metadata: Metadata = {
@@ -20,8 +21,8 @@ export default function RootLayout({
               {!isFavoritesPage && (
                 <nav className="bg-transparent shadow mb-6">
                   <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-                    <a href="/" className="text-xl font-bold text-white">rA</a>
-                    <a href="/favorites" className="text-lg text-white">Favorites</a>
+                    <Link href="/" className="text-xl font-bold text-white">rA</Link>
+                    <Link href="/favorites" className="text-lg text-white">Favorites</Link>
                   </div>
                 </nav>
               )}

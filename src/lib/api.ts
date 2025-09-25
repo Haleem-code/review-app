@@ -75,14 +75,22 @@ interface ReviewsApiResponse {
 }
 
 const isReviewsApiResponse = (data: unknown): data is ReviewsApiResponse => {
-  return (
+  if (
     typeof data === 'object' &&
     data !== null &&
-    'data' in data &&
-    typeof (data as any).data === 'object' &&
-    'reviews' in (data as any).data &&
-    Array.isArray((data as any).data.reviews)
-  );
+    'data' in data
+  ) {
+    const d = (data as { data: unknown }).data;
+    if (
+      typeof d === 'object' &&
+      d !== null &&
+      'reviews' in d &&
+      Array.isArray((d as { reviews: unknown }).reviews)
+    ) {
+      return true;
+    }
+  }
+  return false;
 };
 
 export const getCompanyReviews = async (domain: string, page = 1): Promise<{ reviews: Review[]; hasMore: boolean }> => {
@@ -97,15 +105,7 @@ export const getCompanyReviews = async (domain: string, page = 1): Promise<{ rev
   };
 };
 
-const isCompany = (data: unknown): data is Company => {
-  return (
-    typeof data === 'object' &&
-    data !== null &&
-    'company_id' in data &&
-    'name' in data &&
-    'domain' in data
-  );
-};
+// Removed unused isCompany declaration
 
 export const getCompanyDetails = async (domain: string): Promise<Company> => {
   const cleanDomain = domain.replace(/^www\./, '').toLowerCase();
