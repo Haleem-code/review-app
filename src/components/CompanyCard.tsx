@@ -1,11 +1,11 @@
-'use client';
-import Link from 'next/link';
-import { Company } from '@/lib/types';
-import { FavoriteButton } from './FavoriteButton';
-import { Star, Users } from 'lucide-react';
+"use client"
+import Link from "next/link"
+import type { Company } from "@/lib/types"
+import { FavoriteButton } from "./FavoriteButton"
+import { Star, Users } from "lucide-react"
 
 interface CompanyCardProps {
-  company: Company;
+  company: Company
 }
 
 export const CompanyCard = ({ company }: CompanyCardProps) => {
@@ -15,56 +15,56 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
         key={i}
         className={`w-4 h-4 ${
           i < Math.floor(rating)
-            ? 'text-yellow-400 fill-current'
+            ? "text-yellow-400 fill-current"
             : i < rating
-            ? 'text-yellow-400 fill-current opacity-50'
-            : 'text-gray-300'
+              ? "text-yellow-400 fill-current opacity-50"
+              : "text-white/30"
         }`}
       />
-    ));
-  };
+    ))
+  }
+
+  const handleViewReviews = () => {
+    sessionStorage.setItem(`company-${company.domain}`, JSON.stringify(company))
+  }
 
   return (
-    <div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200 p-6 border">
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex items-center space-x-3">
+    <div className="bg-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 p-8 border border-white/10 hover:border-white/20 group">
+      <div className="flex justify-between items-start mb-6">
+        <div className="flex items-center space-x-4">
           {company.logo && (
             <img
-              src={company.logo}
+              src={company.logo || "/placeholder.svg"}
               alt={`${company.name} logo`}
-              className="w-12 h-12 rounded-lg object-cover"
+              className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/10"
             />
           )}
           <div>
-            <h3 className="text-lg font-semibold text-gray-900">{company.name}</h3>
-            <p className="text-sm text-gray-500">{company.domain}</p>
+            <h3 className="text-xl font-semibold text-white mb-1">{company.name}</h3>
+            <p className="text-sm text-white/60 font-medium">{company.domain}</p>
           </div>
         </div>
         <FavoriteButton company={company} />
       </div>
 
-      <div className="flex items-center space-x-4 mb-4">
-        <div className="flex items-center space-x-1">
-          <div className="flex space-x-1">
-            {renderStars(company.rating)}
-          </div>
-          <span className="text-sm font-medium text-gray-900">
-            {company.rating.toFixed(1)}
-          </span>
+      <div className="flex items-center space-x-6 mb-6">
+        <div className="flex items-center space-x-2">
+          <div className="flex space-x-1">{renderStars(company.rating)}</div>
+          <span className="text-sm font-semibold text-white ml-1">{company.rating.toFixed(1)}</span>
         </div>
-        
-        <div className="flex items-center space-x-1 text-sm text-gray-600">
+
+        <div className="flex items-center space-x-2 text-sm text-white/70">
           <Users className="w-4 h-4" />
-          <span>{company.review_count.toLocaleString()} reviews</span>
+          <span className="font-medium">{company.review_count.toLocaleString()} reviews</span>
         </div>
       </div>
 
       {company.categories && company.categories.length > 0 && (
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-6">
           {company.categories.slice(0, 3).map((category, index) => (
             <span
               key={index}
-              className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
+              className="px-3 py-1.5 bg-white/10 text-white/80 text-xs font-medium rounded-full border border-white/10"
             >
               {category.name}
             </span>
@@ -74,10 +74,11 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
 
       <Link
         href={`/company/${company.domain}`}
-        className="block w-full text-center bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200"
+        onClick={handleViewReviews}
+        className="block w-full text-center bg-white hover:bg-white/90 text-black font-semibold py-3 px-6 rounded-xl transition-all duration-200 group-hover:shadow-lg"
       >
         View Reviews
       </Link>
     </div>
-  );
-};
+  )
+}

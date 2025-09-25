@@ -51,8 +51,8 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
   };
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-6 shadow-sm hover:shadow-md transition-shadow">
-      {/* Header with rating and date */}
+    <div className="rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow text-white">
+     
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1">
@@ -62,31 +62,31 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
             {review.rating}/5
           </span>
         </div>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-white/50">
           {formatDate(review.review_date)}
         </span>
       </div>
 
-      {/* Review title if available */}
+      
       {review.title && (
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+        <h3 className="font-semibold text-white mb-2 line-clamp-2">
           {review.title}
         </h3>
       )}
 
-      {/* Review text */}
-      <p className="text-gray-700 mb-4 line-clamp-4 leading-relaxed">
+
+      <p className="text-white/70 mb-4 line-clamp-4 leading-relaxed">
         {review.review_text}
       </p>
 
-      {/* Footer with reviewer info */}
+    
       <div className="flex items-center justify-between pt-3 border-t border-gray-100">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-            <User className="w-4 h-4 text-gray-600" />
+            <User className="w-4 h-4 text-white" />
           </div>
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-900">
+            <span className="text-sm font-medium text-white/70">
               {review.reviewer_name || 'Anonymous'}
             </span>
             {review.reviewer_country && (
@@ -102,7 +102,6 @@ const ReviewCard = ({ review }: ReviewCardProps) => {
           )}
         </div>
 
-        {/* Helpful count if available */}
         {review.helpful_count !== undefined && review.helpful_count > 0 && (
           <span className="text-xs text-gray-500">
             {review.helpful_count} found helpful

@@ -13,7 +13,6 @@ export class ApiError extends Error {
   }
 }
 
-// Generic API request function that returns unknown data
 const apiRequest = async (endpoint: string): Promise<unknown> => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -35,20 +34,18 @@ const apiRequest = async (endpoint: string): Promise<unknown> => {
   }
 };
 
-// Type guard to check if response matches SearchApiResponse structure
 const isSearchApiResponse = (data: unknown): data is SearchApiResponse => {
   return (
     typeof data === 'object' &&
     data !== null &&
-    'data' in data &&
-    'status' in data
+    'status' in data &&
+    'data' in data
   );
 };
 
 export const searchCompanies = async (query: string, page = 1): Promise<SearchResult> => {
-  const response = await apiRequest(`/search?query=${encodeURIComponent(query)}&page=${page}`);
+  const response = await apiRequest(`/company-search?query=${encodeURIComponent(query)}`);
   
-  // Type guard to ensure we have the correct response structure
   if (!isSearchApiResponse(response)) {
     throw new ApiError('Invalid response format from search API');
   }
@@ -61,43 +58,45 @@ export const searchCompanies = async (query: string, page = 1): Promise<SearchRe
     companies,
     total: totalCompanies,
     page: currentPage,
-    // Assuming 10 items per page, check if there are more pages
     hasMore: companies.length > 0 && totalCompanies > currentPage * 10,
   };
 };
 
-// Type for company reviews response (you may need to adjust this based on actual API response)
 interface ReviewsApiResponse {
-  reviews: Review[];
-  hasMore?: boolean;
-  total?: number;
-  page?: number;
+  data: {
+    reviews: Review[];
+    total_reviews?: number;
+    rating_distribution?: unknown;
+    review_language_distribution?: unknown;
+  };
+  parameters?: unknown;
+  request_id?: string;
+  status?: string;
 }
 
-// Type guard for reviews response
 const isReviewsApiResponse = (data: unknown): data is ReviewsApiResponse => {
   return (
     typeof data === 'object' &&
     data !== null &&
-    'reviews' in data &&
-    Array.isArray((data as ReviewsApiResponse).reviews)
+    'data' in data &&
+    typeof (data as any).data === 'object' &&
+    'reviews' in (data as any).data &&
+    Array.isArray((data as any).data.reviews)
   );
 };
 
 export const getCompanyReviews = async (domain: string, page = 1): Promise<{ reviews: Review[]; hasMore: boolean }> => {
-  const response = await apiRequest(`/companies/${domain}/reviews?page=${page}`);
-  
+  const response = await apiRequest(`/company-reviews?company_domain=${domain}`);
+  console.log('API response from company-reviews:', response);
   if (!isReviewsApiResponse(response)) {
     throw new ApiError('Invalid response format from reviews API');
   }
-  
   return {
-    reviews: response.reviews || [],
-    hasMore: response.hasMore || false,
+    reviews: response.data.reviews || [],
+    hasMore: (response.data.reviews?.length ?? 0) > 0,
   };
 };
 
-// Type guard for company details response
 const isCompany = (data: unknown): data is Company => {
   return (
     typeof data === 'object' &&
@@ -109,11 +108,46 @@ const isCompany = (data: unknown): data is Company => {
 };
 
 export const getCompanyDetails = async (domain: string): Promise<Company> => {
-  const response = await apiRequest(`/companies/${domain}`);
+  const cleanDomain = domain.replace(/^www\./, '').toLowerCase();
   
-  if (!isCompany(response)) {
-    throw new ApiError('Invalid response format from company details API');
+  const searchQueries = [
+    cleanDomain,
+    cleanDomain.split('.')[0],
+    domain,
+    domain.split('.')[0]
+  ];
+  
+  for (const query of searchQueries) {
+    try {
+      console.log(`Searching for: "${query}"`);
+      const searchResult = await searchCompanies(query);
+      console.log(`Found ${searchResult.companies.length} companies for query: "${query}"`);
+      
+      if (searchResult.companies.length > 0) {
+        const company = searchResult.companies.find(c => {
+          const companyDomain = c.domain.replace(/^www\./, '').toLowerCase();
+          const companyWebsite = c.website?.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '').toLowerCase();
+          
+          return companyDomain === cleanDomain || 
+                 companyWebsite === cleanDomain ||
+                 companyDomain.includes(cleanDomain) ||
+                 cleanDomain.includes(companyDomain) ||
+                 c.name.toLowerCase().includes(query.toLowerCase());
+        });
+        
+        if (company) {
+          console.log('Found matching company:', company.name);
+          return company;
+        } else {
+          console.log('No exact match, returning first result:', searchResult.companies[0].name);
+          return searchResult.companies[0];
+        }
+      }
+    } catch (error) {
+      console.log(`Search failed for query "${query}":`, error);
+      continue;
+    }
   }
   
-  return response;
+  throw new ApiError(`Company not found for domain: ${domain}. Try searching for the company name instead.`);
 };

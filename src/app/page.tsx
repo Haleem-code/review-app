@@ -14,13 +14,13 @@ export default function HomePage() {
   }, [initializeFavorites]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-black">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Company Review Dashboard
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Reviews App
           </h1>
-          <p className="text-xl text-gray-600 mb-8">
+          <p className="text-xl text-white/70 mb-8">
             Search and discover company reviews from trusted sources
           </p>
           <SearchBar />
@@ -45,7 +45,7 @@ export default function HomePage() {
             <button
               onClick={loadMore}
               disabled={loading}
-              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white font-medium py-2 px-6 rounded-lg"
+              className="bg-black/50 hover:bg-black/70 disabled:bg-gray-400 text-white font-medium py-2 px-6 rounded-lg border border-white/20 transition-colors duration-200"
             >
               {loading ? 'Loading...' : 'Load More'}
             </button>
