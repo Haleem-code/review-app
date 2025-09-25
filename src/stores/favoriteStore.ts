@@ -25,7 +25,8 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
 
   removeFavorite: (companyId: string) => {
     set(state => {
-      const newFavorites = state.favorites.filter(fav => fav.id !== companyId);
+      // Fixed: Use company_id instead of id
+      const newFavorites = state.favorites.filter(fav => fav.company_id !== companyId);
       if (typeof window !== 'undefined') {
         localStorage.setItem('favorites', JSON.stringify(newFavorites));
       }
@@ -34,7 +35,8 @@ export const useFavoritesStore = create<FavoritesState>((set, get) => ({
   },
 
   isFavorite: (companyId: string) => {
-    return get().favorites.some(fav => fav.id === companyId);
+    // Fixed: Use company_id instead of id
+    return get().favorites.some(fav => fav.company_id === companyId);
   },
 
   initializeFavorites: () => {
