@@ -4,6 +4,7 @@ import { useParams } from "next/navigation"
 import { getCompanyDetails, getCompanyReviews } from "@/lib/api"
 import type { Company, Review } from "@/lib/types"
 import ReviewCard from "@/components/ReviewCard"
+import Image from "next/image"
 
 export default function CompanyPage() {
   const { domain } = useParams()
@@ -66,10 +67,12 @@ export default function CompanyPage() {
         <div className="bg-black rounded-2xl shadow-2xl p-10 mb-8 border border-white/10">
           <div className="flex items-center space-x-6 mb-8">
             {company.logo && (
-              <img
-                src={company.logo || "/placeholder.svg"}
-                alt={`${company.name} logo`}
-                className="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/20"
+              <Image
+              src={company.logo || "/placeholder.svg"}
+              alt={`${company.name} logo`}
+              width={80}
+              height={80}
+              className="w-20 h-20 rounded-2xl object-cover ring-2 ring-white/20"
               />
             )}
             <div>

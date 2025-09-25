@@ -3,6 +3,7 @@ import Link from "next/link"
 import type { Company } from "@/lib/types"
 import { FavoriteButton } from "./FavoriteButton"
 import { Star, Users } from "lucide-react"
+import Image from "next/image"
 
 interface CompanyCardProps {
   company: Company
@@ -32,13 +33,15 @@ export const CompanyCard = ({ company }: CompanyCardProps) => {
     <div className="bg-black rounded-2xl shadow-2xl hover:shadow-3xl transition-all duration-300 p-8 border border-white/10 hover:border-white/20 group">
       <div className="flex justify-between items-start mb-6">
         <div className="flex items-center space-x-4">
-          {company.logo && (
-            <img
+            {company.logo && (
+            <Image
               src={company.logo || "/placeholder.svg"}
               alt={`${company.name} logo`}
+              width={56}
+              height={56}
               className="w-14 h-14 rounded-xl object-cover ring-2 ring-white/10"
             />
-          )}
+            )}
           <div>
             <h3 className="text-xl font-semibold text-white mb-1">{company.name}</h3>
             <p className="text-sm text-white/60 font-medium">{company.domain}</p>
