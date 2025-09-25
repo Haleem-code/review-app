@@ -1,7 +1,7 @@
 import { Company, Review, SearchResult, SearchApiResponse } from './types';
 
 const API_BASE_URL = 'https://trustpilot-company-and-reviews-data.p.rapidapi.com';
-const API_KEY = process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '9a735d8d00msh0d16f1bba590cb9p14fec4jsn538730a23266';
+const API_KEY = process.env.NEXT_PUBLIC_RAPIDAPI_KEY || '';
 const API_HOST = 'trustpilot-company-and-reviews-data.p.rapidapi.com';
 
 export class ApiError extends Error {
