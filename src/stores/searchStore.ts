@@ -1,6 +1,6 @@
 'use client';
 import { create } from 'zustand';
-import { Company, SearchResult } from '@/lib/types';
+import { Company } from '@/lib/types';
 import { searchCompanies } from '@/lib/api';
 
 interface SearchState {
