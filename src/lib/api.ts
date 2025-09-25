@@ -13,12 +13,8 @@ export class ApiError extends Error {
   }
 }
 
-// Define response types for better type safety
-interface ApiResponse {
-  [key: string]: unknown;
-}
-
-const apiRequest = async (endpoint: string): Promise<ApiResponse> => {
+// Generic API request function that returns unknown data
+const apiRequest = async (endpoint: string): Promise<unknown> => {
   try {
     const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       headers: {
@@ -32,32 +28,92 @@ const apiRequest = async (endpoint: string): Promise<ApiResponse> => {
       throw new ApiError(`API Error: ${response.statusText}`, response.status);
     }
 
-    return await response.json() as ApiResponse;
+    return await response.json();
   } catch (error) {
     if (error instanceof ApiError) throw error;
     throw new ApiError('Network error occurred');
   }
 };
 
+// Type guard to check if response matches SearchApiResponse structure
+const isSearchApiResponse = (data: unknown): data is SearchApiResponse => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'data' in data &&
+    'status' in data
+  );
+};
+
 export const searchCompanies = async (query: string, page = 1): Promise<SearchResult> => {
-  const data = await apiRequest(`/search?query=${encodeURIComponent(query)}&page=${page}`) as SearchApiResponse;
+  const response = await apiRequest(`/search?query=${encodeURIComponent(query)}&page=${page}`);
+  
+  // Type guard to ensure we have the correct response structure
+  if (!isSearchApiResponse(response)) {
+    throw new ApiError('Invalid response format from search API');
+  }
+  
+  const companies = response.data?.companies || [];
+  const totalCompanies = response.data?.total_companies || 0;
+  const currentPage = parseInt(response.parameters?.page || '1');
   
   return {
-    companies: data.data?.companies || [],
-    total: data.data?.total_companies || 0,
-    page: parseInt(data.parameters?.page || '1'),
-    hasMore: (data.data?.companies || []).length > 0 && (data.data?.total_companies || 0) > page * 10,
+    companies,
+    total: totalCompanies,
+    page: currentPage,
+    // Assuming 10 items per page, check if there are more pages
+    hasMore: companies.length > 0 && totalCompanies > currentPage * 10,
   };
+};
+
+// Type for company reviews response (you may need to adjust this based on actual API response)
+interface ReviewsApiResponse {
+  reviews: Review[];
+  hasMore?: boolean;
+  total?: number;
+  page?: number;
+}
+
+// Type guard for reviews response
+const isReviewsApiResponse = (data: unknown): data is ReviewsApiResponse => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'reviews' in data &&
+    Array.isArray((data as ReviewsApiResponse).reviews)
+  );
 };
 
 export const getCompanyReviews = async (domain: string, page = 1): Promise<{ reviews: Review[]; hasMore: boolean }> => {
-  const data = await apiRequest(`/companies/${domain}/reviews?page=${page}`);
+  const response = await apiRequest(`/companies/${domain}/reviews?page=${page}`);
+  
+  if (!isReviewsApiResponse(response)) {
+    throw new ApiError('Invalid response format from reviews API');
+  }
+  
   return {
-    reviews: (data.reviews as Review[]) || [],
-    hasMore: (data.hasMore as boolean) || false,
+    reviews: response.reviews || [],
+    hasMore: response.hasMore || false,
   };
 };
 
+// Type guard for company details response
+const isCompany = (data: unknown): data is Company => {
+  return (
+    typeof data === 'object' &&
+    data !== null &&
+    'company_id' in data &&
+    'name' in data &&
+    'domain' in data
+  );
+};
+
 export const getCompanyDetails = async (domain: string): Promise<Company> => {
-  return await apiRequest(`/companies/${domain}`) as Company;
+  const response = await apiRequest(`/companies/${domain}`);
+  
+  if (!isCompany(response)) {
+    throw new ApiError('Invalid response format from company details API');
+  }
+  
+  return response;
 };
