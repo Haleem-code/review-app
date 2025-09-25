@@ -22,7 +22,7 @@ export const validateEmail = (email: string): boolean => {
   return re.test(email);
 };
 
-export const debounce = <T extends (...args: any[]) => any>(
+export const debounce = <T extends (...args: unknown[]) => unknown>(
   func: T,
   wait: number
 ): ((...args: Parameters<T>) => void) => {
